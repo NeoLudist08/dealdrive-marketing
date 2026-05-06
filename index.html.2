@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DealDrive — The realtor app that pays for itself.</title>
+<meta name="description" content="DealDrive is the iOS + Android app that auto-tracks every business mile, lets you update deals between showings, and hands you an IRS-ready report at tax time.">
+<meta property="og:title" content="DealDrive — The realtor app that pays for itself">
+<meta property="og:description" content="Auto-tracked mileage. On-the-go pipeline. Click-to-call. Built for realtors who actually drive.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: '#FBFAF5',
+          ink: '#0F172A',
+          slate: '#475569',
+          navy: '#1E40AF',
+          'navy-deep': '#1E3A8A',
+          emerald: '#059669',
+          'emerald-deep': '#047857',
+          amber: '#D97706',
+          'border-soft': '#E5E1D6'
+        },
+        fontFamily: {
+          serif: ['Fraunces', 'Georgia', 'serif'],
+          sans: ['DM Sans', 'system-ui', 'sans-serif']
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: #FBFAF5;
+    color: #0F172A;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(30, 64, 175, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 90% 100%, rgba(5, 150, 105, 0.04) 0%, transparent 50%);
+  }
+  .font-display {
+    font-family: 'Fraunces', Georgia, serif;
+    font-feature-settings: "ss01" on, "ss02" on;
+    letter-spacing: -0.02em;
+  }
+  .grain::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    opacity: 0.035; z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.9s ease-out, transform 0.9s ease-out; }
+  .reveal.shown { opacity: 1; transform: translateY(0); }
+  .price-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+  .price-card:hover { transform: translateY(-4px); box-shadow: 0 24px 48px -16px rgba(15, 23, 42, 0.12); }
+  .phone-mock {
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.05),
+                0 30px 60px -20px rgba(15, 23, 42, 0.25),
+                0 18px 36px -18px rgba(15, 23, 42, 0.15);
+  }
+  @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .pulse-dot { animation: pulse-soft 2s ease-in-out infinite; }
+  .num-counter { font-variant-numeric: tabular-nums; }
+  .form-success { background: rgba(5, 150, 105, 0.1); color: #047857; }
+  .form-error { background: rgba(217, 70, 39, 0.1); color: #C2410C; }
+</style>
+</head>
+
+<body class="grain">
+
+<nav class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-6 flex items-center justify-between">
+  <a href="#" class="flex items-center gap-2">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect x="2" y="2" width="24" height="24" rx="6" fill="#1E40AF"/>
+      <path d="M9 14L13 18L20 11" stroke="#FBFAF5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="font-display font-semibold text-xl text-ink">DealDrive</span>
+  </a>
+  <div class="flex items-center gap-3 sm:gap-6">
+    <a href="#features" class="hidden sm:inline text-sm text-slate hover:text-ink transition">Features</a>
+    <a href="#pricing" class="hidden sm:inline text-sm text-slate hover:text-ink transition">Pricing</a>
+    <a href="#waitlist" class="bg-ink text-paper px-4 py-2 rounded-lg text-sm font-medium hover:bg-navy transition">Get early access</a>
+  </div>
+</nav>
+
+<section class="relative max-w-7xl mx-auto px-6 lg:px-12 pt-12 pb-24 lg:pt-20 lg:pb-32">
+  <div class="grid lg:grid-cols-12 gap-12 items-center">
+    <div class="lg:col-span-7">
+      <div class="reveal" style="--i: 0">
+        <span class="inline-block text-xs tracking-[0.2em] uppercase text-emerald font-semibold mb-6">
+          The mobile half of your business
+        </span>
+      </div>
+      <h1 class="font-display font-light text-5xl sm:text-6xl lg:text-7xl text-ink leading-[1.05] tracking-tight reveal" style="--i: 1">
+        The app that<br>
+        <span class="font-medium italic">pays</span> you back.
+      </h1>
+      <p class="mt-8 text-lg lg:text-xl text-slate max-w-xl leading-relaxed reveal" style="--i: 2">
+        DealDrive auto-tracks every business mile in your pocket, lets you update deals between showings, and hands you an IRS-ready deduction report at tax time. Built for realtors who actually drive.
+      </p>
+
+      <form id="waitlist-hero" class="mt-10 flex flex-col sm:flex-row gap-3 max-w-md reveal" style="--i: 3">
+        <input type="email" required placeholder="you@yourbrokerage.com"
+          class="flex-1 bg-white border border-border-soft rounded-xl px-5 py-4 text-base text-ink placeholder:text-slate/60 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 transition">
+        <button type="submit" class="bg-navy text-paper px-6 py-4 rounded-xl font-medium hover:bg-navy-deep transition whitespace-nowrap">
+          Get early access
+        </button>
+      </form>
+      <div id="hero-status" class="mt-3 text-sm hidden px-4 py-2 rounded-lg max-w-md"></div>
+      <p class="mt-5 text-sm text-slate reveal" style="--i: 4">
+        Founder pricing $39/mo for life · iOS + Android
+      </p>
+    </div>
+
+    <div class="lg:col-span-5 reveal" style="--i: 5">
+      <div class="relative max-w-sm mx-auto">
+        <div class="phone-mock bg-white rounded-[2.5rem] p-2 border border-border-soft">
+          <div class="bg-paper rounded-[2rem] overflow-hidden aspect-[9/19]">
+            <div class="px-6 pt-4 pb-3 flex justify-between items-center text-xs font-medium text-ink">
+              <span>9:41</span>
+              <div class="flex gap-1 items-center">
+                <span class="w-3.5 h-2 rounded-sm bg-ink"></span>
+                <span class="w-1 h-1 rounded-full bg-ink"></span>
+                <span class="w-4 h-2 rounded-sm border border-ink"></span>
+              </div>
+            </div>
+            <div class="px-5 pt-2">
+              <div class="text-xs uppercase tracking-wider text-slate font-semibold mb-1">Mileage</div>
+              <div class="font-display text-2xl font-medium text-ink">November</div>
+            </div>
+            <div class="mx-4 mt-4 bg-ink rounded-2xl p-4 text-paper">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-emerald pulse-dot"></span>
+                  <span class="text-sm font-medium">Auto-tracking on</span>
+                </div>
+                <div class="text-xs text-paper/60">All day</div>
+              </div>
+              <div class="mt-3 text-3xl font-display font-medium num-counter">847.2 mi</div>
+              <div class="text-xs text-paper/70">$593 deduction this month</div>
+            </div>
+            <div class="mx-4 mt-4 space-y-2">
+              <div class="bg-white rounded-xl p-3 border border-border-soft">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <div class="text-xs text-emerald font-semibold uppercase tracking-wide">Showing</div>
+                    <div class="text-sm font-medium text-ink mt-0.5">847 Quincy St NW</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-semibold text-ink num-counter">12.4 mi</div>
+                    <div class="text-xs text-slate">$8.68</div>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white rounded-xl p-3 border border-border-soft">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <div class="text-xs text-emerald font-semibold uppercase tracking-wide">Closing</div>
+                    <div class="text-sm font-medium text-ink mt-0.5">3402 P St NW</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-semibold text-ink num-counter">8.1 mi</div>
+                    <div class="text-xs text-slate">$5.67</div>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white rounded-xl p-3 border border-border-soft">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <div class="text-xs text-amber font-semibold uppercase tracking-wide">Pending</div>
+                    <div class="text-sm font-medium text-ink mt-0.5">Auto-detected drive</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-semibold text-ink num-counter">22.7 mi</div>
+                    <div class="text-xs text-slate">Tap to classify</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="relative bg-ink text-paper py-24 lg:py-32 overflow-hidden">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12">
+    <div class="reveal">
+      <span class="text-xs tracking-[0.2em] uppercase text-emerald font-semibold">The math nobody tells you</span>
+    </div>
+    <h2 class="mt-6 font-display font-light text-4xl sm:text-5xl lg:text-6xl leading-[1.1] tracking-tight reveal">
+      The average realtor leaves
+      <span class="block font-medium italic text-emerald mt-2">$2,847 on the table</span>
+      every single year.
+    </h2>
+    <p class="mt-8 text-lg lg:text-xl text-paper/70 max-w-2xl leading-relaxed reveal">
+      Unclaimed mileage. Forgotten odometer readings. Receipts that never made it to the CPA. The IRS allows it. Most realtors just never capture it.
+    </p>
+    <div class="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-8 reveal">
+      <div>
+        <div class="font-display text-4xl lg:text-5xl font-medium text-emerald num-counter">$0.70</div>
+        <div class="mt-2 text-sm text-paper/60">IRS standard rate per business mile</div>
+      </div>
+      <div>
+        <div class="font-display text-4xl lg:text-5xl font-medium text-emerald num-counter">12,400</div>
+        <div class="mt-2 text-sm text-paper/60">Avg business miles per active realtor</div>
+      </div>
+      <div>
+        <div class="font-display text-4xl lg:text-5xl font-medium text-emerald num-counter">$8,680</div>
+        <div class="mt-2 text-sm text-paper/60">Potential annual deduction</div>
+      </div>
+      <div>
+        <div class="font-display text-4xl lg:text-5xl font-medium text-emerald num-counter">38%</div>
+        <div class="mt-2 text-sm text-paper/60">What realtors actually capture</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="max-w-7xl mx-auto px-6 lg:px-12 py-24 lg:py-32">
+  <div class="reveal">
+    <span class="text-xs tracking-[0.2em] uppercase text-emerald font-semibold">What DealDrive does on the road</span>
+  </div>
+  <h2 class="mt-4 font-display font-light text-4xl sm:text-5xl lg:text-6xl text-ink leading-[1.1] tracking-tight max-w-3xl reveal">
+    Built for the truck cab and <span class="italic font-medium">the open house parking lot.</span>
+  </h2>
+
+  <div class="mt-20 grid md:grid-cols-3 gap-8 lg:gap-12">
+    <div class="reveal" style="--i: 0">
+      <div class="w-12 h-12 rounded-xl bg-emerald/10 flex items-center justify-center mb-6">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c0-5 4-9 9-9s9 4 9 9-4 9-9 9-9-4-9-9z"/><path d="M12 7v5l3 3"/></svg>
+      </div>
+      <h3 class="font-display text-2xl font-medium text-ink mb-3">Auto-mileage</h3>
+      <p class="text-slate leading-relaxed">
+        Background GPS detects every business drive. Cross-references your calendar so showings tag themselves. One-tap IRS report at tax time.
+      </p>
+    </div>
+    <div class="reveal" style="--i: 1">
+      <div class="w-12 h-12 rounded-xl bg-navy/10 flex items-center justify-center mb-6">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+      </div>
+      <h3 class="font-display text-2xl font-medium text-ink mb-3">Pipeline in your pocket</h3>
+      <p class="text-slate leading-relaxed">
+        Update deal stages between showings. Mark milestones complete in the title company parking lot. Your pipeline, mobile-first.
+      </p>
+    </div>
+    <div class="reveal" style="--i: 2">
+      <div class="w-12 h-12 rounded-xl bg-amber/10 flex items-center justify-center mb-6">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      </div>
+      <h3 class="font-display text-2xl font-medium text-ink mb-3">Click-to-call</h3>
+      <p class="text-slate leading-relaxed">
+        Hot leads, sphere, past clients — every contact one tap from the dial pad. Communications log every call automatically.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="relative bg-paper py-24 lg:py-32 border-t border-border-soft">
+  <div class="max-w-7xl mx-auto px-6 lg:px-12 grid lg:grid-cols-2 gap-16 items-center">
+    <div class="reveal">
+      <span class="text-xs tracking-[0.2em] uppercase text-emerald font-semibold">The differentiator</span>
+      <h2 class="mt-4 font-display font-light text-4xl lg:text-5xl text-ink leading-[1.1] tracking-tight">
+        Other apps make you log miles. <span class="italic font-medium">DealDrive does it for you.</span>
+      </h2>
+      <p class="mt-6 text-lg text-slate leading-relaxed">
+        Background GPS detects when you start driving. It tags each trip against your calendar. At tax time, you get one PDF.
+      </p>
+      <ul class="mt-10 space-y-5">
+        <li class="flex gap-4">
+          <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald flex items-center justify-center mt-0.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="font-medium text-ink">Auto-detects every business drive</div>
+            <div class="text-slate text-sm mt-1">Background GPS that knows when you start driving and when you stop. No taps required.</div>
+          </div>
+        </li>
+        <li class="flex gap-4">
+          <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald flex items-center justify-center mt-0.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="font-medium text-ink">Cross-references your calendar</div>
+            <div class="text-slate text-sm mt-1">Drive at 2pm to a showing on your calendar at 2pm? It tags itself to that deal automatically.</div>
+          </div>
+        </li>
+        <li class="flex gap-4">
+          <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald flex items-center justify-center mt-0.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="font-medium text-ink">IRS-ready report in one tap</div>
+            <div class="text-slate text-sm mt-1">Date, miles, purpose, business %, total deduction. PDF straight to your CPA.</div>
+          </div>
+        </li>
+        <li class="flex gap-4">
+          <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald flex items-center justify-center mt-0.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="font-medium text-ink">Per-deal cost view</div>
+            <div class="text-slate text-sm mt-1">See exactly what every deal cost you to close — every drive, every dollar.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="reveal">
+      <div class="bg-white rounded-3xl border border-border-soft p-8 lg:p-10 shadow-xl">
+        <div class="flex items-center justify-between pb-6 border-b border-border-soft">
+          <div>
+            <div class="font-display text-xl font-medium text-ink">2025 Mileage Report</div>
+            <div class="text-sm text-slate mt-1">Jan 1 – Dec 31</div>
+          </div>
+          <div class="px-3 py-1 bg-emerald/10 text-emerald-deep rounded-full text-xs font-semibold uppercase tracking-wide">IRS-Ready</div>
+        </div>
+        <div class="grid grid-cols-2 gap-6 py-6 border-b border-border-soft">
+          <div>
+            <div class="text-xs uppercase tracking-wider text-slate">Total miles</div>
+            <div class="font-display text-3xl font-medium text-ink mt-1 num-counter">14,287.4</div>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wider text-slate">Business miles</div>
+            <div class="font-display text-3xl font-medium text-ink mt-1 num-counter">11,932.8</div>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wider text-slate">Business %</div>
+            <div class="font-display text-3xl font-medium text-ink mt-1 num-counter">83.5%</div>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wider text-slate">IRS rate</div>
+            <div class="font-display text-3xl font-medium text-ink mt-1 num-counter">$0.70</div>
+          </div>
+        </div>
+        <div class="pt-6">
+          <div class="text-xs uppercase tracking-wider text-slate">Total deduction</div>
+          <div class="font-display text-5xl lg:text-6xl font-medium text-emerald mt-2 num-counter">$8,353</div>
+          <div class="text-sm text-slate mt-2">at $0.70 / mile, current IRS standard rate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="max-w-7xl mx-auto px-6 lg:px-12 py-24 lg:py-32">
+  <div class="text-center max-w-2xl mx-auto reveal">
+    <span class="text-xs tracking-[0.2em] uppercase text-emerald font-semibold">Pricing</span>
+    <h2 class="mt-4 font-display font-light text-4xl sm:text-5xl text-ink leading-[1.1] tracking-tight">
+      One trip's deduction <span class="italic font-medium">covers a whole month.</span>
+    </h2>
+  </div>
+
+  <div class="mt-16 grid md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
+    <div class="price-card bg-white rounded-2xl border border-border-soft p-8">
+      <div class="text-sm uppercase tracking-wider text-slate font-semibold">Solo</div>
+      <div class="mt-2 font-display text-2xl font-medium text-ink">For the working agent</div>
+      <div class="mt-6 flex items-baseline gap-1">
+        <span class="font-display text-5xl font-medium text-ink num-counter">$39</span>
+        <span class="text-slate">/mo</span>
+      </div>
+      <a href="#waitlist" class="mt-8 block text-center bg-paper border border-ink text-ink py-3 rounded-xl font-medium hover:bg-ink hover:text-paper transition">Get early access</a>
+      <ul class="mt-8 space-y-3 text-sm text-slate">
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Auto-tracked mileage</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> IRS report exports</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Pipeline on the go</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Click-to-call contacts</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Today schedule view</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> iOS + Android</li>
+      </ul>
+    </div>
+
+    <div class="price-card relative bg-ink text-paper rounded-2xl border-2 border-emerald p-8 md:-my-2">
+      <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald text-white px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide">Most popular</div>
+      <div class="text-sm uppercase tracking-wider text-emerald font-semibold">Bundle</div>
+      <div class="mt-2 font-display text-2xl font-medium">DealDrive + DealDesk</div>
+      <div class="mt-6 flex items-baseline gap-1">
+        <span class="font-display text-5xl font-medium num-counter">$79</span>
+        <span class="text-paper/60">/mo</span>
+      </div>
+      <a href="dealdrive-hub.html" class="mt-8 block text-center bg-emerald text-white py-3 rounded-xl font-medium hover:bg-emerald-deep transition">Get the bundle</a>
+      <ul class="mt-8 space-y-3 text-sm text-paper/80">
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Everything in DealDrive</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Full DealDesk web app</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Kanban pipeline</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Auto milestones</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Same login, every device</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Save $19/mo</li>
+      </ul>
+    </div>
+
+    <div class="price-card bg-white rounded-2xl border border-border-soft p-8">
+      <div class="text-sm uppercase tracking-wider text-slate font-semibold">Team</div>
+      <div class="mt-2 font-display text-2xl font-medium text-ink">For 2–10 agents</div>
+      <div class="mt-6 flex items-baseline gap-1">
+        <span class="font-display text-5xl font-medium text-ink num-counter">$25</span>
+        <span class="text-slate">/agent/mo</span>
+      </div>
+      <a href="#waitlist" class="mt-8 block text-center bg-paper border border-ink text-ink py-3 rounded-xl font-medium hover:bg-ink hover:text-paper transition">Talk to us</a>
+      <ul class="mt-8 space-y-3 text-sm text-slate">
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Everything in Solo</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Per-agent leaderboard</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Team mileage rollup</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Slack notifications</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Lead distribution</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Priority support</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="waitlist" class="relative bg-ink text-paper py-24 lg:py-32 overflow-hidden">
+  <div class="absolute inset-0 opacity-10 pointer-events-none">
+    <div class="absolute top-1/2 left-1/4 w-96 h-96 bg-emerald rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-navy rounded-full blur-3xl"></div>
+  </div>
+  <div class="relative max-w-3xl mx-auto px-6 lg:px-12 text-center">
+    <span class="text-xs tracking-[0.2em] uppercase text-emerald font-semibold reveal">Stop leaving deductions on the table</span>
+    <h2 class="mt-6 font-display font-light text-4xl sm:text-5xl lg:text-6xl leading-[1.1] tracking-tight reveal">
+      Join the <span class="italic font-medium text-emerald">DealDrive</span> waitlist.
+    </h2>
+    <p class="mt-6 text-lg text-paper/70 leading-relaxed reveal">
+      First 100 realtors get founder pricing for life.
+    </p>
+    <form id="waitlist-cta" class="mt-10 flex flex-col sm:flex-row gap-3 max-w-md mx-auto reveal">
+      <input type="email" required placeholder="you@yourbrokerage.com"
+        class="flex-1 bg-white/5 border border-white/20 rounded-xl px-5 py-4 text-base text-paper placeholder:text-paper/40 focus:outline-none focus:border-emerald focus:ring-2 focus:ring-emerald/20 transition">
+      <button type="submit" class="bg-emerald text-white px-6 py-4 rounded-xl font-medium hover:bg-emerald-deep transition whitespace-nowrap">
+        Get early access
+      </button>
+    </form>
+    <div id="cta-status" class="mt-3 text-sm hidden px-4 py-2 rounded-lg max-w-md mx-auto"></div>
+    <p class="mt-5 text-sm text-paper/50 reveal">Built in DC by realtors and engineers.</p>
+  </div>
+</section>
+
+<footer class="bg-paper border-t border-border-soft">
+  <div class="max-w-7xl mx-auto px-6 lg:px-12 py-12 flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center">
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
+          <rect x="2" y="2" width="24" height="24" rx="6" fill="#1E40AF"/>
+          <path d="M9 14L13 18L20 11" stroke="#FBFAF5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="font-display font-semibold text-ink">DealDrive</span>
+      </div>
+      <div class="text-sm text-slate">A product of <a href="https://businessdatagurus.com" class="text-ink hover:underline">Business Data Gurus</a> · Built in DC</div>
+    </div>
+    <div class="flex gap-6 text-sm text-slate">
+      <a href="dealdesk-landing.html" class="hover:text-ink">DealDesk Web</a>
+      <a href="dealdrive-hub.html" class="hover:text-ink">Bundle</a>
+      <a href="mailto:hello@businessdatagurus.com" class="hover:text-ink">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // === BDG BACKEND CONFIG — paste your anon key once below ===
+  const BDG_URL = 'https://bdywkygsvriaibjddcey.supabase.co';
+  const BDG_ANON_KEY = 'PASTE_BDG_ANON_KEY_HERE';
+  const SOURCE = 'dealdrive-landing';
+
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('shown');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach((el, i) => {
+    if (!el.style.getPropertyValue('--i')) el.style.setProperty('--i', i % 6);
+    observer.observe(el);
+  });
+
+  async function submitWaitlist(form, statusEl) {
+    const email = form.querySelector('input[type="email"]').value.trim();
+    if (!email) return;
+    statusEl.textContent = 'Submitting…';
+    statusEl.className = 'mt-3 text-sm px-4 py-2 rounded-lg form-success max-w-md';
+    statusEl.classList.remove('hidden');
+    try {
+      const res = await fetch(`${BDG_URL}/rest/v1/bdg_intakes`, {
+        method: 'POST',
+        headers: {
+          'apikey': BDG_ANON_KEY,
+          'Authorization': `Bearer ${BDG_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          email: email,
+          service_interest: 'DealDrive',
+          source: SOURCE,
+          status: 'waitlist',
+          message: `Waitlist signup from ${SOURCE}`
+        })
+      });
+      if (res.ok || res.status === 201) {
+        form.reset();
+        statusEl.textContent = "✓ You're on the list. We'll be in touch.";
+      } else {
+        throw new Error(`HTTP ${res.status}`);
+      }
+    } catch (err) {
+      statusEl.textContent = 'Something went wrong. Email hello@businessdatagurus.com instead.';
+      statusEl.className = 'mt-3 text-sm px-4 py-2 rounded-lg form-error max-w-md';
+      console.error(err);
+    }
+  }
+
+  document.getElementById('waitlist-hero').addEventListener('submit', (e) => {
+    e.preventDefault();
+    submitWaitlist(e.target, document.getElementById('hero-status'));
+  });
+  document.getElementById('waitlist-cta').addEventListener('submit', (e) => {
+    e.preventDefault();
+    submitWaitlist(e.target, document.getElementById('cta-status'));
+  });
+</script>
+
+</body>
+</html>
