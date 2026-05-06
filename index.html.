@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DealDrive + DealDesk — The realtor's full stack.</title>
+<meta name="description" content="Two tools, one realtor. DealDrive on the road, DealDesk at the desk. Pick one or get both.">
+<meta property="og:title" content="DealDrive + DealDesk — Pick your realtor stack">
+<meta property="og:description" content="Mobile mileage tracker. Web pipeline command center. Or both, bundled.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: '#FBFAF5',
+          ink: '#0F172A',
+          slate: '#475569',
+          navy: '#1E40AF',
+          'navy-deep': '#1E3A8A',
+          emerald: '#059669',
+          'emerald-deep': '#047857',
+          amber: '#D97706',
+          'border-soft': '#E5E1D6'
+        },
+        fontFamily: {
+          serif: ['Fraunces', 'Georgia', 'serif'],
+          sans: ['DM Sans', 'system-ui', 'sans-serif']
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: #FBFAF5;
+    color: #0F172A;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(circle at 50% -10%, rgba(30, 64, 175, 0.06) 0%, transparent 60%),
+      radial-gradient(circle at 50% 110%, rgba(5, 150, 105, 0.06) 0%, transparent 60%);
+  }
+  .font-display {
+    font-family: 'Fraunces', Georgia, serif;
+    font-feature-settings: "ss01" on, "ss02" on;
+    letter-spacing: -0.02em;
+  }
+  .grain::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    opacity: 0.035; z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.9s ease-out, transform 0.9s ease-out; }
+  .reveal.shown { opacity: 1; transform: translateY(0); }
+  .product-card {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 28px 56px -16px rgba(15, 23, 42, 0.18);
+  }
+  .product-card.selected {
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2), 0 28px 56px -16px rgba(5, 150, 105, 0.25);
+  }
+  .num-counter { font-variant-numeric: tabular-nums; }
+  .form-success { background: rgba(5, 150, 105, 0.1); color: #047857; }
+  .form-error { background: rgba(217, 70, 39, 0.1); color: #C2410C; }
+  @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .pulse-dot { animation: pulse-soft 2s ease-in-out infinite; }
+</style>
+</head>
+
+<body class="grain">
+
+<!-- Top bar -->
+<nav class="relative z-10 max-w-6xl mx-auto px-6 lg:px-12 py-6 flex items-center justify-between">
+  <a href="https://businessdatagurus.com" class="flex items-center gap-2">
+    <div class="w-7 h-7 rounded-lg bg-ink flex items-center justify-center">
+      <span class="text-paper font-display font-semibold text-xs">B</span>
+    </div>
+    <span class="font-display text-sm text-ink">Business Data Gurus</span>
+  </a>
+  <a href="#picker" class="text-sm text-slate hover:text-ink transition">Skip to picker ↓</a>
+</nav>
+
+<!-- Hero -->
+<section class="relative max-w-4xl mx-auto px-6 lg:px-12 pt-12 pb-12 lg:pt-20 lg:pb-16 text-center">
+  <div class="reveal">
+    <span class="inline-block text-xs tracking-[0.2em] uppercase text-emerald font-semibold mb-6">
+      Two tools · One realtor
+    </span>
+  </div>
+  <h1 class="font-display font-light text-5xl sm:text-6xl lg:text-7xl text-ink leading-[1.05] tracking-tight reveal" style="--i: 1">
+    Built for <span class="italic font-medium">how realtors actually work.</span>
+  </h1>
+  <p class="mt-8 text-lg lg:text-xl text-slate max-w-2xl mx-auto leading-relaxed reveal" style="--i: 2">
+    On the road and at the desk. The driving half and the deal-closing half. Pick the one you need most — or get both and stop juggling tools.
+  </p>
+</section>
+
+<!-- Product cards -->
+<section id="picker" class="max-w-6xl mx-auto px-6 lg:px-12 pb-12">
+  <div class="grid md:grid-cols-2 gap-6">
+    <!-- DealDrive card -->
+    <button type="button" data-product="DealDrive" class="product-card text-left bg-white rounded-3xl border border-border-soft p-8 lg:p-10 reveal cursor-pointer">
+      <div class="flex items-start justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <svg width="48" height="48" viewBox="0 0 28 28" fill="none">
+            <rect x="2" y="2" width="24" height="24" rx="6" fill="#1E40AF"/>
+            <path d="M9 14L13 18L20 11" stroke="#FBFAF5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div>
+            <div class="font-display text-2xl font-medium text-ink">DealDrive</div>
+            <div class="text-sm text-slate">Mobile · iOS + Android</div>
+          </div>
+        </div>
+        <span class="text-xs uppercase tracking-wider text-navy bg-navy/10 px-2 py-1 rounded-full font-semibold">On the road</span>
+      </div>
+
+      <p class="text-slate leading-relaxed mb-6">
+        Auto-tracked mileage in your pocket. Cross-references your calendar so showings tag themselves. IRS-ready report at tax time.
+      </p>
+
+      <ul class="space-y-2 text-sm text-slate mb-8">
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Background GPS mileage tracking</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Auto-tag drives to deals</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Click-to-call contacts</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> One-tap IRS deduction report</li>
+      </ul>
+
+      <div class="flex items-baseline gap-2 mb-6">
+        <span class="font-display text-4xl font-medium text-ink num-counter">$39</span>
+        <span class="text-slate">/mo</span>
+        <span class="text-xs text-emerald uppercase tracking-wider font-semibold ml-2">Founder</span>
+      </div>
+
+      <div class="flex gap-3">
+        <a href="dealdrive-landing.html" onclick="event.stopPropagation()" class="flex-1 text-center bg-paper border border-ink text-ink py-3 rounded-xl font-medium hover:bg-ink hover:text-paper transition">
+          Learn more
+        </a>
+        <span class="select-marker flex items-center justify-center w-12 h-12 rounded-xl border-2 border-border-soft text-slate transition">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check hidden">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="plus">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </span>
+      </div>
+    </button>
+
+    <!-- DealDesk card -->
+    <button type="button" data-product="DealDesk" class="product-card text-left bg-white rounded-3xl border border-border-soft p-8 lg:p-10 reveal cursor-pointer">
+      <div class="flex items-start justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <svg width="48" height="48" viewBox="0 0 28 28" fill="none">
+            <rect x="2" y="2" width="24" height="24" rx="6" fill="#1E40AF"/>
+            <rect x="6" y="8" width="3" height="12" rx="1" fill="#FBFAF5"/>
+            <rect x="12.5" y="8" width="3" height="8" rx="1" fill="#FBFAF5"/>
+            <rect x="19" y="8" width="3" height="14" rx="1" fill="#FBFAF5"/>
+          </svg>
+          <div>
+            <div class="font-display text-2xl font-medium text-ink">DealDesk</div>
+            <div class="text-sm text-slate">Web · any browser</div>
+          </div>
+        </div>
+        <span class="text-xs uppercase tracking-wider text-emerald-deep bg-emerald/10 px-2 py-1 rounded-full font-semibold">At the desk</span>
+      </div>
+
+      <p class="text-slate leading-relaxed mb-6">
+        Your full deal pipeline as a kanban. Auto-generated transaction milestones. Contacts, listings, documents — and CPA-ready year-end reports.
+      </p>
+
+      <ul class="space-y-2 text-sm text-slate mb-8">
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Drag-and-drop pipeline kanban</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Auto 10-step milestone checklist</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Full CRM + contacts + sphere</li>
+        <li class="flex gap-2"><span class="text-emerald">✓</span> Listings + documents + reports</li>
+      </ul>
+
+      <div class="flex items-baseline gap-2 mb-6">
+        <span class="font-display text-4xl font-medium text-ink num-counter">$59</span>
+        <span class="text-slate">/mo</span>
+        <span class="text-xs text-emerald uppercase tracking-wider font-semibold ml-2">Founder</span>
+      </div>
+
+      <div class="flex gap-3">
+        <a href="dealdesk-landing.html" onclick="event.stopPropagation()" class="flex-1 text-center bg-paper border border-ink text-ink py-3 rounded-xl font-medium hover:bg-ink hover:text-paper transition">
+          Learn more
+        </a>
+        <span class="select-marker flex items-center justify-center w-12 h-12 rounded-xl border-2 border-border-soft text-slate transition">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check hidden">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="plus">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </span>
+      </div>
+    </button>
+  </div>
+
+  <!-- Bundle bar -->
+  <div class="mt-6 reveal">
+    <button type="button" data-product="Both" class="product-card w-full bg-ink text-paper rounded-3xl p-6 lg:p-8 cursor-pointer text-left">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2 h-2 rounded-full bg-emerald pulse-dot"></span>
+            <span class="text-xs uppercase tracking-[0.2em] text-emerald font-semibold">Bundle · save $19/mo</span>
+          </div>
+          <div class="font-display text-2xl lg:text-3xl font-medium">Get both. Cover your whole day.</div>
+          <div class="text-sm text-paper/70 mt-1">DealDrive + DealDesk · iOS + Android + Web · same login on every device</div>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="text-right">
+            <div class="flex items-baseline gap-2">
+              <span class="font-display text-4xl font-medium num-counter">$79</span>
+              <span class="text-paper/60">/mo</span>
+            </div>
+            <div class="text-xs text-paper/50 line-through num-counter">$98 separately</div>
+          </div>
+          <span class="select-marker flex items-center justify-center w-12 h-12 rounded-xl border-2 border-paper/30 text-paper transition">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check hidden">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="plus">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+    </button>
+  </div>
+</section>
+
+<!-- Waitlist form -->
+<section id="waitlist" class="max-w-2xl mx-auto px-6 lg:px-12 py-16">
+  <div class="bg-white rounded-3xl border border-border-soft p-8 lg:p-12 reveal">
+    <div class="text-center mb-8">
+      <span class="text-xs tracking-[0.2em] uppercase text-emerald font-semibold">Get early access</span>
+      <h2 class="mt-3 font-display font-light text-3xl sm:text-4xl text-ink leading-tight tracking-tight">
+        Pick your tools. <span class="italic font-medium">Lock in founder pricing.</span>
+      </h2>
+      <p class="mt-3 text-slate" id="selection-hint">Tap a card above to choose.</p>
+    </div>
+
+    <form id="waitlist-form" class="space-y-4">
+      <input
+        type="email"
+        name="email"
+        required
+        placeholder="you@yourbrokerage.com"
+        class="w-full bg-paper border border-border-soft rounded-xl px-5 py-4 text-base text-ink placeholder:text-slate/60 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 transition">
+
+      <input
+        type="text"
+        name="name"
+        placeholder="Your name (optional)"
+        class="w-full bg-paper border border-border-soft rounded-xl px-5 py-4 text-base text-ink placeholder:text-slate/60 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 transition">
+
+      <input
+        type="text"
+        name="company"
+        placeholder="Brokerage (optional)"
+        class="w-full bg-paper border border-border-soft rounded-xl px-5 py-4 text-base text-ink placeholder:text-slate/60 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 transition">
+
+      <input type="hidden" name="service_interest" id="service-interest" value="">
+
+      <button
+        type="submit"
+        id="submit-btn"
+        disabled
+        class="w-full bg-emerald text-white py-4 rounded-xl font-medium hover:bg-emerald-deep transition disabled:opacity-40 disabled:cursor-not-allowed">
+        Get early access
+      </button>
+
+      <div id="form-status" class="hidden text-sm px-4 py-3 rounded-lg"></div>
+    </form>
+
+    <p class="mt-6 text-xs text-slate text-center">
+      Founder pricing locked for life. No credit card. We'll email when your tools are ready.
+    </p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-paper border-t border-border-soft mt-12">
+  <div class="max-w-6xl mx-auto px-6 lg:px-12 py-12 flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center">
+    <div>
+      <div class="flex items-center gap-3 mb-2">
+        <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+          <rect x="2" y="2" width="24" height="24" rx="6" fill="#1E40AF"/>
+          <path d="M9 14L13 18L20 11" stroke="#FBFAF5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+          <rect x="2" y="2" width="24" height="24" rx="6" fill="#1E40AF"/>
+          <rect x="6" y="8" width="3" height="12" rx="1" fill="#FBFAF5"/>
+          <rect x="12.5" y="8" width="3" height="8" rx="1" fill="#FBFAF5"/>
+          <rect x="19" y="8" width="3" height="14" rx="1" fill="#FBFAF5"/>
+        </svg>
+        <span class="font-display font-semibold text-ink">DealDrive · DealDesk</span>
+      </div>
+      <div class="text-sm text-slate">A Business Data Gurus product · Built in DC</div>
+    </div>
+    <div class="flex gap-6 text-sm text-slate">
+      <a href="dealdrive-landing.html" class="hover:text-ink">DealDrive</a>
+      <a href="dealdesk-landing.html" class="hover:text-ink">DealDesk</a>
+      <a href="mailto:hello@businessdatagurus.com" class="hover:text-ink">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // === BDG BACKEND CONFIG — paste your anon key once below ===
+  const BDG_URL = 'https://bdywkygsvriaibjddcey.supabase.co';
+  const BDG_ANON_KEY = 'PASTE_BDG_ANON_KEY_HERE';
+  const SOURCE = 'dealdrive-hub';
+
+  // Reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('shown');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach((el, i) => {
+    if (!el.style.getPropertyValue('--i')) el.style.setProperty('--i', i % 6);
+    observer.observe(el);
+  });
+
+  // Selection logic
+  const cards = document.querySelectorAll('.product-card[data-product]');
+  const serviceInput = document.getElementById('service-interest');
+  const submitBtn = document.getElementById('submit-btn');
+  const hint = document.getElementById('selection-hint');
+
+  cards.forEach((card) => {
+    card.addEventListener('click', () => {
+      cards.forEach((c) => {
+        c.classList.remove('selected');
+        c.querySelector('.check').classList.add('hidden');
+        c.querySelector('.plus').classList.remove('hidden');
+      });
+      card.classList.add('selected');
+      card.querySelector('.check').classList.remove('hidden');
+      card.querySelector('.plus').classList.add('hidden');
+
+      const product = card.dataset.product;
+      serviceInput.value = product;
+      submitBtn.disabled = false;
+
+      const labels = {
+        'DealDrive': 'DealDrive selected · mobile mileage + on-the-go pipeline',
+        'DealDesk': 'DealDesk selected · web pipeline + full CRM',
+        'Both': 'Bundle selected · DealDrive + DealDesk together'
+      };
+      hint.textContent = labels[product];
+      hint.classList.add('text-emerald-deep', 'font-medium');
+      hint.classList.remove('text-slate');
+
+      document.getElementById('waitlist').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  // Submit
+  document.getElementById('waitlist-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const statusEl = document.getElementById('form-status');
+    const formData = new FormData(form);
+    const product = formData.get('service_interest');
+    if (!product) return;
+
+    statusEl.textContent = 'Submitting…';
+    statusEl.className = 'text-sm px-4 py-3 rounded-lg form-success';
+    statusEl.classList.remove('hidden');
+
+    try {
+      const res = await fetch(`${BDG_URL}/rest/v1/bdg_intakes`, {
+        method: 'POST',
+        headers: {
+          'apikey': BDG_ANON_KEY,
+          'Authorization': `Bearer ${BDG_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          email: formData.get('email'),
+          name: formData.get('name') || null,
+          company: formData.get('company') || null,
+          service_interest: product,
+          source: SOURCE,
+          status: 'waitlist',
+          message: `Hub picker selected: ${product}`
+        })
+      });
+      if (res.ok || res.status === 201) {
+        form.reset();
+        statusEl.innerHTML = `✓ You're on the <strong>${product}</strong> waitlist. We'll be in touch.`;
+        statusEl.className = 'text-sm px-4 py-3 rounded-lg form-success';
+        submitBtn.disabled = true;
+        cards.forEach((c) => {
+          c.classList.remove('selected');
+          c.querySelector('.check').classList.add('hidden');
+          c.querySelector('.plus').classList.remove('hidden');
+        });
+      } else {
+        throw new Error(`HTTP ${res.status}`);
+      }
+    } catch (err) {
+      statusEl.textContent = 'Something went wrong. Email hello@businessdatagurus.com instead.';
+      statusEl.className = 'text-sm px-4 py-3 rounded-lg form-error';
+      console.error(err);
+    }
+  });
+</script>
+
+</body>
+</html>
